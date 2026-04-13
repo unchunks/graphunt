@@ -1,6 +1,6 @@
 {
-  "nodeCount": 8,
-  "edges": [
+  "NodeCount": 8,
+  "Edges": [
     [ 0, 1 ],
     [ 1, 2 ],
     [ 2, 3 ],
@@ -10,7 +10,7 @@
     [ 5, 6 ],
     [ 6, 7 ]
   ],
-  "rabbitStart": 0,
-  "wolfStart": 7,
-  "goalNode": 3
+  "RabbitStart": 0,
+  "WolfStart": 7,
+  "GoalNode": 3
 }

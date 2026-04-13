@@ -12,17 +12,17 @@ public class EdgeView : MonoBehaviour
 
     private void HandlePlayerMoved(PlayerID playerId, int to)
     {
-        if (playerId == _playerId && to == _to)
-            PlayMoveAnimation(playerId, to);
+        //if (playerId == _playerId && to == _to)
+        //    PlayMoveAnimation(playerId, to);
     }
-    private void HandleEdgeAdded(int from, int to)
+    private void HandleEdgeAdded(EdgeData edge)
     {
-        if (from == _from && to == _to)
-            PlayConnectAnimation(from, to);
+        //if (edge == _edge)
+        //    PlayConnectAnimation(edge);
     }
-    private void HandleEdgeRemoved(int from, int to)
+    private void HandleEdgeRemoved(EdgeData edge)
     {
-        if (from == _from && to == _to)
-            PlayDisconnectAnimation(from, to);
+        //if (edge == _edge)
+        //    PlayDisconnectAnimation(edge);
     }
 }

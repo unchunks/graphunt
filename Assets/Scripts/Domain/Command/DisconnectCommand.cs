@@ -1,19 +1,17 @@
 ﻿public class DisconnectCommand : IGameCommand
 {
     private readonly PlayerID _playerId;
-    private readonly int _from;
-    private readonly int _to;
+    private readonly EdgeData _edgeData;
 
-    public DisconnectCommand(PlayerID playerId, int from, int to)
+    public DisconnectCommand(PlayerID playerId, EdgeData edgeData)
     {
         _playerId = playerId;
-        _from = from;
-        _to = to;
+        _edgeData = edgeData;
     }
 
     public void Execute(GraphModel graph) =>
-        graph.RemoveEdge(_from, _to);
+        graph.RemoveEdge(_edgeData);
 
     public void Undo(GraphModel graph) =>
-        graph.AddEdge(_from, _to);
+        graph.AddEdge(_edgeData);
 }

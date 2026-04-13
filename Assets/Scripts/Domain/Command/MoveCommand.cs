@@ -14,8 +14,8 @@ public class MoveCommand : IGameCommand
     }
 
     public void Execute(GraphModel graph) =>
-        graph.SetPlayerPosition(_playerId, _to);
+        graph.MovePlayer(_playerId, _to);
 
     public void Undo(GraphModel graph) =>
-        graph.SetPlayerPosition(_playerId, _from);
+        graph.MovePlayer(_playerId, _from);
 }
