@@ -1,63 +1,46 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using System.Threading;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class TurnController: MonoBehaviour
+public class TurnController : MonoBehaviour
 {
+    [SerializeField] private GraphView _graphView;
+
     private GraphModel _graph;
     private RuleEngine _rule;
-    private IStageRepository _stageRepo;
+    private IGameState _currentState;
 
-    private GameState _currentState;
+    private IPlayerInputStrategy _rabbitStrategy;
+    private IPlayerInputStrategy _wolfStrategy;
+    private IPlayerInputStrategy _currentStrategy;
+    private PlayerID _currentPlayerId;
 
-    public void Initialize(GraphModel graph, RuleEngine rule, IStageRepository stageRepo)
+    private CancellationTokenSource _turnCts;
+
+    private CommandStack _commandStack = new();
+
+    public void Initialize(
+        RuleEngine rule,
+        IStageRepository stageRepo,
+        IPlayerInputStrategy rabbitStrategy,
+        IPlayerInputStrategy wolfStrategy)
     {
-        _graph = graph;
         _rule = rule;
-        _stageRepo = stageRepo;
 
-        TransisionTo(GameState.Setup);
+        _rabbitStrategy = rabbitStrategy;
+        _wolfStrategy = wolfStrategy;
+
+        TransisionTo(new SetupState(stageRepo));
     }
 
-    //private void Update()
-    //{
-    //    if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-    //        OnActionCompleted();
-    //}
-
-    public void TransisionTo(GameState nextState)
+    public void TransisionTo(IGameState nextState)
     {
+        CancelCurrentTurn();
+
+        _currentState?.OnExit(this);
         _currentState = nextState;
-        Debug.Log($"State: {nextState}");
-
-        switch (_currentState)
-        {
-            case GameState.Setup:      OnEnterSetup();      break;
-            case GameState.RabbitTurn: OnEnterRabbitTurn(); break;
-            case GameState.WolfTurn:   OnEnterWolfTurn();   break;
-            case GameState.Result:     OnEnterResult();     break;
-        }
-    }
-
-    private void OnEnterSetup()
-    {
-        _graph = _stageRepo.Load();
-
-        TransisionTo(GameState.RabbitTurn);
-    }
-
-    private void OnEnterRabbitTurn()
-    {
-        Debug.Log("Rabbit's turn");
-    }
-
-    private void OnEnterWolfTurn() 
-    {
-        Debug.Log("Wolf's turn");
-    }
-
-    private void OnEnterResult() 
-    {
-        Debug.Log("Result");
+        _currentState.OnEnter(this);
     }
 
     public void OnActionCompleted()
@@ -65,27 +48,85 @@ public class TurnController: MonoBehaviour
         if (CheckVictory(out GameResult result))
         {
             Debug.Log($"Game End: {result}");
-            TransisionTo(GameState.Result);
+            TransisionTo(new ResultState(result));
             return;
         }
 
-        TransisionTo(_currentState == GameState.RabbitTurn
-            ? GameState.WolfTurn
-            : GameState.RabbitTurn);
+        TransisionTo(_currentState is RabbitTurnState
+            ? new WolfTurnState()
+            : new RabbitTurnState());
+    }
+
+    public void BeginTurn(PlayerID playerId)
+    {
+        _currentPlayerId = playerId;
+        _currentStrategy = playerId == PlayerID.Rabbit ? _rabbitStrategy : _wolfStrategy;
+
+        _turnCts = new CancellationTokenSource();
+        RunTurnAsync(_turnCts.Token).Forget();
+    }
+
+    public void SetGraph(GraphModel graph)
+    {
+        _graph = graph;
+        _graphView.Initialize(graph);
+    }
+
+    public GraphModel GetGraph() => _graph;
+    public RuleEngine GetRule() => _rule;
+
+    private async UniTaskVoid RunTurnAsync(CancellationToken ct)
+    {
+        IGameCommand command = await _currentStrategy.DecideActionAsync(_graph, _currentPlayerId, ct);
+
+        if (ct.IsCancellationRequested) return;
+
+        _commandStack.Execute(command, _graph);
+        OnActionCompleted();
     }
 
     private bool CheckVictory(out GameResult result)
     {
+        int rabbitPos = _graph.GetPlayerPosition(PlayerID.Rabbit);
+        int wolfPos = _graph.GetPlayerPosition(PlayerID.Wolf);
+
+        // ウサギがゴールに到達
+        if (_graph.GetNodeType(rabbitPos) == NodeType.Goal)
+        {
+            result = GameResult.RabbitReachedGoal;
+            return true;
+        }
+
+        // オオカミがウサギを捕獲
+        if (rabbitPos == wolfPos)
+        {
+            result = GameResult.WolfCaught;
+            return true;
+        }
+
+        // TODO: 千日手は第2週（ZobristHasher実装後）に追加
         result = GameResult.None;
         return false;
     }
-}
 
-// 勝利結果の種類
-public enum GameResult
-{
-    None,
-    RabbitReachedGoal,   // ウサギがゴールに到達
-    RabbitLooped,        // 千日手（ウサギ勝利）
-    WolfCaught,          // オオカミがウサギを捕獲
+    private void CancelCurrentTurn()
+    {
+        if (_turnCts != null && !_turnCts.IsCancellationRequested)
+        {
+            _turnCts.Cancel();
+            _turnCts.Dispose();
+            _turnCts = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        CancelCurrentTurn();
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            OnActionCompleted();
+    }
 }

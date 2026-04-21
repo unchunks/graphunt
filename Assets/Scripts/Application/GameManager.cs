@@ -1,16 +1,21 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager: MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     [SerializeField] private TurnController _turnController;
 
     private void Awake()
     {
-        var graph = new GraphModel();
-        var rule = new RuleEngine();
+        RuleEngine rule = new RuleEngine();
         IStageRepository repo = new JsonStageRepository();
+        IPlayerInputStrategy rabbitStrategy = null;
+        IPlayerInputStrategy wolfStrategy = null;
 
-        _turnController.Initialize(graph, rule, repo);
+        // TODO: PVPやPVEなどモードに応じたプレイヤー入力戦略の初期化
+        rabbitStrategy = new HumanInputStrategy();
+        wolfStrategy = new HumanInputStrategy();
+
+        _turnController.Initialize(rule, repo, rabbitStrategy, wolfStrategy);
     }
 }

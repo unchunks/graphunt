@@ -1,4 +1,5 @@
 ﻿public interface IGameState
 {
-    //void Execute(IGameCommand command);
+    void OnEnter(TurnController controller);
+    void OnExit(TurnController controller);
 }
