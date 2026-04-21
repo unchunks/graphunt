@@ -23,6 +23,7 @@ public class JsonStageRepository : IStageRepository
         return ConvertToGraphModel(stage);
     }
 
+    // 注意: ここではグラフのデータのみを構築しており、Viewは処理されていない（ViewはGraphViewで生成）
     private GraphModel ConvertToGraphModel(StageData stage)
     {
         GraphModel graph = new GraphModel();

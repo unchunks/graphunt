@@ -1,28 +1,31 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(LineRenderer))]
 public class EdgeView : MonoBehaviour
 {
-    public void Initialize(GraphModel model)
+    private LineRenderer _lineRenderer;
+
+    public void Initialize(EdgeData edge, NodeView nodeA, NodeView nodeB)
     {
-        model.OnPlayerMoved += HandlePlayerMoved;
-        model.OnEdgeAdded += HandleEdgeAdded;
-        model.OnEdgeRemoved += HandleEdgeRemoved;
+        _lineRenderer = GetComponent<LineRenderer>();
+        _lineRenderer.positionCount = 2;
+        _lineRenderer.startWidth = 0.05f;
+        _lineRenderer.endWidth = 0.05f;
+
+        UpdatePositions(nodeA, nodeB);
     }
 
-    private void HandlePlayerMoved(PlayerID playerId, int to)
+    private void UpdatePositions(NodeView nodeA, NodeView nodeB)
     {
-        //if (playerId == _playerId && to == _to)
-        //    PlayMoveAnimation(playerId, to);
+        // TODO: ほかのエッジやノードと重ならないよう、曲線にする
+        _lineRenderer.SetPosition(0, nodeA.transform.position);
+        _lineRenderer.SetPosition(1, nodeB.transform.position);
     }
-    private void HandleEdgeAdded(EdgeData edge)
+
+    public void UpdatePositions(Vector3 a, Vector3 b)
     {
-        //if (edge == _edge)
-        //    PlayConnectAnimation(edge);
-    }
-    private void HandleEdgeRemoved(EdgeData edge)
-    {
-        //if (edge == _edge)
-        //    PlayDisconnectAnimation(edge);
+        _lineRenderer.SetPosition(0, a);
+        _lineRenderer.SetPosition(1, b);
     }
 }

@@ -15,6 +15,7 @@ public class GraphModel
     public event Action<PlayerID, int> OnPlayerMoved;   // (playerId, toNodeId)
     public event Action<EdgeData> OnEdgeRemoved;
     public event Action<EdgeData> OnEdgeAdded;
+    public event Action<NodeData> OnNodeAdded;
 
     #region ノード操作
     /// <summary>ノードを追加する。隣接リストの空エントリも同時に作成。</summary>
@@ -22,10 +23,12 @@ public class GraphModel
     {
         _nodes[node.Id] = node;
 
-        if(!_adjacencyList.ContainsKey(node.Id))
+        if (!_adjacencyList.ContainsKey(node.Id))
         {
             _adjacencyList[node.Id] = new HashSet<int>();
         }
+
+        OnNodeAdded?.Invoke(node);
     }
     #endregion
 
@@ -72,6 +75,7 @@ public class GraphModel
 
     #region 読み取り専用メンバへのアクセス
     public IReadOnlyDictionary<int, NodeData> Nodes => _nodes;
+    public NodeType GetNodeType(int nodeId) => Nodes[nodeId].Type;
     public IReadOnlyCollection<EdgeData> Edges => _edges;
 
     /// <summary>
