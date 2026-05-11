@@ -72,10 +72,29 @@ public class TurnController : MonoBehaviour
     {
         _graph = graph;
         _graphView.Initialize(graph);
+    public void Undo()
+    {
+        if (!_commandStack.CanUndo) return;
+
+        CancelCurrentTurn();
+
+        _commandStack.Undo(_graph);
+
+        _history.PopLast();
+
+        TransisionTo(_currentState is RabbitTurnState ? new WolfTurnState() : new RabbitTurnState());
     }
 
-    public GraphModel GetGraph() => _graph;
-    public RuleEngine GetRule() => _rule;
+    public void Redo()
+    {
+        if (!_commandStack.CanRedo) return;
+
+        CancelCurrentTurn();
+
+        _commandStack.Redo(_graph);
+
+        TransisionTo(_currentState is RabbitTurnState ? new WolfTurnState() : new RabbitTurnState());
+    }
 
     private async UniTaskVoid RunTurnAsync(CancellationToken ct)
     {
