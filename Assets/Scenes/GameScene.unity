@@ -305,6 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _turnController: {fileID: 628382301}
   _inputController: {fileID: 1463707831}
+  _selectedStage: 1
 --- !u!1 &184294511
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,6 +487,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -611,6 +613,30 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dd8ac7946c1d0548a52377645926f4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  _panSpeed: 20
+  _panSmooth: 0.15
+  _zoomSpeed: 500
+  _zoomSmooth: 0.1
+  _rotSpeed: 100
+  _rotSmooth: 0.1
+  _useEdge: 0
+  _edgeWidth: 10
+  _useBounds: 0
+  _bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!1 &389525240
 GameObject:
   m_ObjectHideFlags: 0
@@ -903,6 +929,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1181675713}
+  - {fileID: 1588449988}
   m_Father: {fileID: 140693912}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &822020588
@@ -1302,6 +1329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GraphView
   _nodeViewPrefab: {fileID: 8880228300716300781, guid: c9ef077cae44bed43be79b2ed3115ffb, type: 3}
   _edgeViewPrefab: {fileID: 3497677242814257382, guid: 0684fb512e69a9f4e8b7db0f5844b8a9, type: 3}
+  _animator: {fileID: 1588449987}
 --- !u!1 &1463707829
 GameObject:
   m_ObjectHideFlags: 0
@@ -1347,6 +1375,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputController
   _camera: {fileID: 330585545}
+--- !u!1 &1588449986
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1588449988}
+  - component: {fileID: 1588449987}
+  m_Layer: 0
+  m_Name: Graph Animator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1588449987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1588449986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 310fc7ae38339b742890fe6b9c3fc7ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GraphLayoutAnimator
+  _moveDuration: 2
+--- !u!4 &1588449988
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1588449986}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 628382302}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1705449628
 GameObject:
   m_ObjectHideFlags: 0
