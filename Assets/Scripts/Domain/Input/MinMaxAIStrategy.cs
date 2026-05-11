@@ -5,9 +5,9 @@ public class MinMaxAIStrategy : IPlayerInputStrategy
 {
     UniTask<IGameCommand> IPlayerInputStrategy.DecideActionAsync(
         GraphModel graph,
-        PlayerID playerId,
+        PlayerType playerType,
         CancellationToken cancellationToken)
     {
-        return new UniTask<IGameCommand>(); //DecideActionAsync(graph, playerId, cancellationToken);
+        return new UniTask<IGameCommand>(); //DecideActionAsync(graph, playerType, cancellationToken);
     }
 }

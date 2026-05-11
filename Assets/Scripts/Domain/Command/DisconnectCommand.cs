@@ -1,11 +1,11 @@
 ﻿public class DisconnectCommand : IGameCommand
 {
-    private readonly PlayerID _playerId;
+    private readonly PlayerType _playerType;
     private readonly EdgeData _edgeData;
 
-    public DisconnectCommand(PlayerID playerId, EdgeData edgeData)
+    public DisconnectCommand(PlayerType playerType, EdgeData edgeData)
     {
-        _playerId = playerId;
+        _playerType = playerType;
         _edgeData = edgeData;
     }
 

@@ -1,11 +1,11 @@
 ﻿public class ConnectCommand : IGameCommand
 {
-    private readonly PlayerID _playerId;
+    private readonly PlayerType _playerType;
     private readonly EdgeData _edgeData;
 
-    public ConnectCommand(PlayerID playerId, EdgeData edgeData)
+    public ConnectCommand(PlayerType playerType, EdgeData edgeData)
     {
-        _playerId = playerId;
+        _playerType = playerType;
         _edgeData = edgeData;
     }
 

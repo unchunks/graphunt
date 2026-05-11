@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GraphView : MonoBehaviour
@@ -47,12 +46,11 @@ public class GraphView : MonoBehaviour
     {
         if (_nodeViews.ContainsKey(node.Id)) return;
 
-        // TODO: ノードの位置を自動で決める
         NodeView view = Instantiate(_nodeViewPrefab, transform);
         view.name = $"Node_{node.Id}";
         Debug.Log(view.name);
 
-        view.Initialize(node);
+        view.Initialize(node, _graph);
         _nodeViews[node.Id] = view;
     }
 

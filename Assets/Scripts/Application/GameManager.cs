@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private TurnController _turnController;
+    [SerializeField] private InputController _inputController;
 
     private void Awake()
     {
@@ -13,8 +13,8 @@ public class GameManager : MonoBehaviour
         IPlayerInputStrategy wolfStrategy = null;
 
         // TODO: PVPやPVEなどモードに応じたプレイヤー入力戦略の初期化
-        rabbitStrategy = new HumanInputStrategy();
-        wolfStrategy = new HumanInputStrategy();
+        rabbitStrategy = new HumanInputStrategy(_inputController, rule);
+        wolfStrategy = new HumanInputStrategy(_inputController, rule);
 
         _turnController.Initialize(rule, repo, rabbitStrategy, wolfStrategy);
     }

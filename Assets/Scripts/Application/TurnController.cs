@@ -2,6 +2,7 @@
 using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class TurnController : MonoBehaviour
 {
@@ -14,11 +15,12 @@ public class TurnController : MonoBehaviour
     private IPlayerInputStrategy _rabbitStrategy;
     private IPlayerInputStrategy _wolfStrategy;
     private IPlayerInputStrategy _currentStrategy;
-    private PlayerID _currentPlayerId;
+    private PlayerType _currentPlayerType;
 
     private CancellationTokenSource _turnCts;
 
     private CommandStack _commandStack = new();
+
 
     public void Initialize(
         RuleEngine rule,
@@ -57,10 +59,10 @@ public class TurnController : MonoBehaviour
             : new RabbitTurnState());
     }
 
-    public void BeginTurn(PlayerID playerId)
+    public void BeginTurn(PlayerType playerType)
     {
-        _currentPlayerId = playerId;
-        _currentStrategy = playerId == PlayerID.Rabbit ? _rabbitStrategy : _wolfStrategy;
+        _currentPlayerType = playerType;
+        _currentStrategy = playerType == PlayerType.Rabbit ? _rabbitStrategy : _wolfStrategy;
 
         _turnCts = new CancellationTokenSource();
         RunTurnAsync(_turnCts.Token).Forget();
@@ -77,18 +79,19 @@ public class TurnController : MonoBehaviour
 
     private async UniTaskVoid RunTurnAsync(CancellationToken ct)
     {
-        IGameCommand command = await _currentStrategy.DecideActionAsync(_graph, _currentPlayerId, ct);
+        IGameCommand command = await _currentStrategy.DecideActionAsync(_graph, _currentPlayerType, ct);
 
         if (ct.IsCancellationRequested) return;
 
+        // 今はコマンドに空が入っているため、エラーが起きる
         _commandStack.Execute(command, _graph);
         OnActionCompleted();
     }
 
     private bool CheckVictory(out GameResult result)
     {
-        int rabbitPos = _graph.GetPlayerPosition(PlayerID.Rabbit);
-        int wolfPos = _graph.GetPlayerPosition(PlayerID.Wolf);
+        int rabbitPos = _graph.GetPlayerPosition(PlayerType.Rabbit);
+        int wolfPos = _graph.GetPlayerPosition(PlayerType.Wolf);
 
         // ウサギがゴールに到達
         if (_graph.GetNodeType(rabbitPos) == NodeType.Goal)
@@ -127,6 +130,12 @@ public class TurnController : MonoBehaviour
     private void Update()
     {
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
-            OnActionCompleted();
+        {
+            // 現在アクティブなシーンの情報を取得
+            Scene currentScene = SceneManager.GetActiveScene();
+
+            // そのシーンの名前を使って再度ロードする
+            SceneManager.LoadScene(currentScene.name);
+        }
     }
 }

@@ -3,10 +3,11 @@
 public class RuleEngine
 {
     #region 公開メソッド
+
     /// <summary>隣接ノードへの移動が可能か。</summary>
-    public bool CanMove(GraphModel g, PlayerID playerId, int targetNode)
+    public bool CanMove(GraphModel g, PlayerType playerType, int targetNode)
     {
-        int current = g.GetPlayerPosition(playerId);
+        int current = g.GetPlayerPosition(playerType);
         return g.HasEdge(current, targetNode);
     }
 
@@ -20,10 +21,11 @@ public class RuleEngine
         int b = System.Math.Max(nodeA, nodeB);
         return !bridges.Contains((a, b)); // 橋でないことの確認
     }
-    /// <summary>現在地から距離2のノードへの接続が可能か。</summary>
-    public bool CanConnect(GraphModel g, PlayerID playerId, int targetNode)
+
+    /// <summary>現在地からターゲットまでが距離2であり接続が可能か。</summary>
+    public bool CanConnect(GraphModel g, PlayerType playerType, int targetNode)
     {
-        int current = g.GetPlayerPosition(playerId);
+        int current = g.GetPlayerPosition(playerType);
 
         // 既にエッジが存在する場合は生成不可
         if (g.HasEdge(current, targetNode)) return false;
@@ -34,9 +36,11 @@ public class RuleEngine
     /// <summary>BFSで最短距離を返す。連結グラフ前提のため -1 は返らない。</summary>
     public int GetGoalDistance(GraphModel g, int from, int goalNode)
         => GetDistance(g, from, goalNode);
+
     #endregion
 
     #region 内部メソッド
+
     /// <summary>
     /// LowLink法で橋を列挙する。O(V+E)。
     /// 橋は (小さいID, 大きいID) のタプルで正規化して返す。
@@ -57,7 +61,7 @@ public class RuleEngine
         }
 
         return bridges;
-        
+
         void Dfs(int v, int parent)
         {
             ord[v] = low[v] = timer++;
@@ -100,7 +104,7 @@ public class RuleEngine
         Queue<int> queue = new Queue<int>();
         queue.Enqueue(from);
         int distance = 0;
-        
+
         while (queue.Count > 0)
         {
             // 現在の階層（同じ距離にあるノード）の数
@@ -125,5 +129,6 @@ public class RuleEngine
 
         return -1;
     }
+
     #endregion
 }

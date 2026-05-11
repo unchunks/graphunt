@@ -5,6 +5,6 @@ public interface IPlayerInputStrategy
 {
     UniTask<IGameCommand> DecideActionAsync(
         GraphModel graph,
-        PlayerID playerId,
+        PlayerType playerType,
         CancellationToken cancellationToken);
 }

@@ -6,7 +6,7 @@ public class WolfTurnState : IGameState
     public void OnEnter(TurnController controller)
     {
         Debug.Log("オオカミのターン");
-        controller.BeginTurn(PlayerID.Wolf);
+        controller.BeginTurn(PlayerType.Wolf);
 
         // InputControllerの有効化
     }

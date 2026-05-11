@@ -11,7 +11,6 @@ public class SetupState : IGameState
 
     public void OnEnter(TurnController controller)
     {
-        Debug.Log("セットアップ開始");
         GraphModel graph = _repo.Load();
         controller.SetGraph(graph);
         controller.TransisionTo(new RabbitTurnState());

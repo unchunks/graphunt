@@ -1,12 +1,11 @@
-﻿using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RabbitTurnState : IGameState
 {
     public void OnEnter(TurnController controller)
     {
         Debug.Log("ウサギのターン");
-        controller.BeginTurn(PlayerID.Rabbit);
+        controller.BeginTurn(PlayerType.Rabbit);
 
         // InputControllerの有効化
     }

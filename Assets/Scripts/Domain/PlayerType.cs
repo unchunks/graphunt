@@ -1,4 +1,4 @@
-﻿public enum PlayerID
+﻿public enum PlayerType
 {
     Rabbit = 0,
     Wolf = 1,

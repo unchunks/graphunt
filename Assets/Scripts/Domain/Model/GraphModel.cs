@@ -8,17 +8,19 @@ public class GraphModel
     private readonly HashSet<EdgeData> _edges = new();
     private readonly Dictionary<int, HashSet<int>> _adjacencyList = new();
 
-    // プレイヤー現在地（0=ウサギ, 1=オオカミ, インデックスは PlayerID にキャスト）
+    // TODO: オオカミが2体にできるように仕様を変更する
+    // プレイヤー現在地（0=ウサギ, 1=オオカミ, インデックスは PlayerType にキャスト）
     private readonly int[] _playerPositions = new int[2];
 
     // イベント
-    public event Action<PlayerID, int> OnPlayerMoved;   // (playerId, toNodeId)
+    public event Action<PlayerType, int> OnPlayerMoved;   // (playerType, toNodeId)
     public event Action<EdgeData> OnEdgeRemoved;
     public event Action<EdgeData> OnEdgeAdded;
     public event Action<NodeData> OnNodeAdded;
 
     #region ノード操作
-    /// <summary>ノードを追加する。隣接リストの空エントリも同時に作成。</summary>
+
+    /// <summary>ノードのデータとViewを追加する。隣接リストの空エントリも同時に作成。</summary>
     public void AddNode(NodeData node)
     {
         _nodes[node.Id] = node;
@@ -30,10 +32,12 @@ public class GraphModel
 
         OnNodeAdded?.Invoke(node);
     }
+
     #endregion
 
     #region エッジ操作
-    /// <summary>エッジを追加する。_edges と _adjacencyList を同期して更新。</summary>
+
+    /// <summary>エッジのデータとViewを追加する。_edges と _adjacencyList を同期して更新。</summary>
 	public void AddEdge(EdgeData edge)
     {
         if (!_edges.Add(edge)) return;  // 重複は無視
@@ -43,7 +47,7 @@ public class GraphModel
         OnEdgeAdded?.Invoke(edge);
     }
 
-    /// <summary>エッジを削除する。_edges と _adjacencyList を同期して更新。</summary>
+    /// <summary>エッジのデータとViewを削除する。_edges と _adjacencyList を同期して更新。</summary>
     public void RemoveEdge(EdgeData edge)
     {
         if (!_edges.Remove(edge)) return;  // 存在しないエッジは無視
@@ -52,28 +56,32 @@ public class GraphModel
         _adjacencyList[edge.NodeB].Remove(edge.NodeA);
         OnEdgeRemoved?.Invoke(edge);
     }
+
     #endregion
 
     #region プレイヤー操作
+
     /// <summary>ステージ読み込み時の初期位置設定。イベントは発行しない。</summary>
     public void InitializePlayerPositions(int rabbitNodeId, int wolfNodeId)
     {
-        _playerPositions[(int)PlayerID.Rabbit] = rabbitNodeId;
-        _playerPositions[(int)PlayerID.Wolf] = wolfNodeId;
+        _playerPositions[(int)PlayerType.Rabbit] = rabbitNodeId;
+        _playerPositions[(int)PlayerType.Wolf] = wolfNodeId;
     }
 
     /// <summary>ターン中の移動。イベントを発行する。</summary>
-    public void MovePlayer(PlayerID playerId, int toNodeId)
+    public void MovePlayer(PlayerType playerType, int toNodeId)
     {
-        _playerPositions[(int)playerId] = toNodeId;
-        OnPlayerMoved?.Invoke(playerId, toNodeId);
+        _playerPositions[(int)playerType] = toNodeId;
+        OnPlayerMoved?.Invoke(playerType, toNodeId);
     }
 
-    public int GetPlayerPosition(PlayerID playerId)
-        => _playerPositions[(int)playerId];
+    public int GetPlayerPosition(PlayerType playerType)
+        => _playerPositions[(int)playerType];
+
     #endregion
 
     #region 読み取り専用メンバへのアクセス
+
     public IReadOnlyDictionary<int, NodeData> Nodes => _nodes;
     public NodeType GetNodeType(int nodeId) => Nodes[nodeId].Type;
     public IReadOnlyCollection<EdgeData> Edges => _edges;
@@ -93,5 +101,6 @@ public class GraphModel
     public bool HasEdge(int nodeA, int nodeB)
         => _adjacencyList.TryGetValue(nodeA, out var neighbors)
            && neighbors.Contains(nodeB);
+
     #endregion
 }
