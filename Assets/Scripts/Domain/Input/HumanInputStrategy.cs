@@ -6,13 +6,18 @@ public class HumanInputStrategy : IPlayerInputStrategy
 {
     private readonly INodeInputReceiver _input;
     private readonly RuleEngine _rule;
+    private readonly ZobristHasher _hasher;
 
     private ActionMode _mode = ActionMode.Move;
 
-    public HumanInputStrategy(INodeInputReceiver input, RuleEngine rule)
+    public HumanInputStrategy(
+        INodeInputReceiver input,
+        RuleEngine rule,
+        ZobristHasher hasher)
     {
         _input = input;
         _rule = rule;
+        _hasher = hasher;
 
         _input.OnModeChangeRequested += SetMode;
     }
@@ -30,12 +35,38 @@ public class HumanInputStrategy : IPlayerInputStrategy
             {
                 ct.ThrowIfCancellationRequested();
 
-                int nodeId = await _input.WaitForNodeClickAsync(ct);
+                PlayerID? pickedPieceId;
+                int nodeId;
+                if (playerType == PlayerType.Rabbit)
+                {
+                    pickedPieceId = PlayerID.Rabbit;
+                }
+                else
+                {
+                    // 狼はどちらの駒を動かすか選べる
+                    nodeId = await _input.WaitForNodeClickAsync(ct);
+                    pickedPieceId = TryGetPlayerID(graph, nodeId);
+                    if (pickedPieceId == null)
+                    {
+                        // TODO: ユーザーフィードバックを実装
+                        Debug.Log("オオカミのいるノードではありません");
+                        continue;
+                    }
 
-                IGameCommand command = TryBuildCommand(graph, playerType, nodeId);
-                if (command != null) return command;
+                    // TODO: 選択した方をハイライト表示する
+                }
 
-                Debug.Log("無効なクリック");
+                nodeId = await _input.WaitForNodeClickAsync(ct);
+
+                IGameCommand command = TryBuildCommand(graph, (PlayerID)pickedPieceId, nodeId);
+                if (command == null)
+                {
+                    // TODO: ユーザーフィードバックを実装
+                    Debug.Log("無効なクリック");
+                    continue;
+                }
+
+                return command;
             }
         }
         finally
@@ -49,34 +80,51 @@ public class HumanInputStrategy : IPlayerInputStrategy
     /// </summary>
     /// <param name="nodeId">クリックされたノードのID</param>
     /// <returns></returns>
-    private IGameCommand TryBuildCommand(GraphModel graph, PlayerType playerType, int nodeId)
+    private IGameCommand TryBuildCommand(GraphModel graph, PlayerID playerId, int nodeId)
     {
-        int playerNode = graph.GetPlayerPosition(playerType);
+        int playerNode = graph.GetPlayerPosition(playerId);
 
         switch (_mode)
         {
             case ActionMode.Move:
-                if (_rule.CanMove(graph, playerType, nodeId))
+                if (_rule.CanMove(graph, playerId, nodeId))
                 {
-                    return new MoveCommand(playerType, playerNode, nodeId);
+                    return new MoveCommand(playerId, playerNode, nodeId, _hasher);
                 }
                 break;
 
             case ActionMode.Disconnect:
                 if (_rule.CanDisconnect(graph, playerNode, nodeId))
                 {
-                    return new DisconnectCommand(playerType, new EdgeData(playerNode, nodeId));
+                    return new DisconnectCommand(playerId, new EdgeData(playerNode, nodeId), _hasher);
                 }
 
                 break;
 
 
             case ActionMode.Connect:
-                if (_rule.CanConnect(graph, playerType, nodeId))
+                if (_rule.CanConnect(graph, playerId, nodeId))
                 {
-                    return new ConnectCommand(playerType, new EdgeData(playerNode, nodeId));
+                    return new ConnectCommand(playerId, new EdgeData(playerNode, nodeId), _hasher);
                 }
                 break;
+        }
+        return null;
+    }
+
+    private PlayerID? TryGetPlayerID(GraphModel graph, int nodeId)
+    {
+        if (nodeId == graph.GetPlayerPosition(PlayerID.Rabbit))
+        {
+            return PlayerID.Rabbit;
+        }
+        else if (nodeId == graph.GetPlayerPosition(PlayerID.WolfA))
+        {
+            return PlayerID.WolfA;
+        }
+        else if (nodeId == graph.GetPlayerPosition(PlayerID.WolfB))
+        {
+            return PlayerID.WolfB;
         }
         return null;
     }

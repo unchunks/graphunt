@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System.Threading;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -11,6 +12,9 @@ public class TurnController : MonoBehaviour
     private GraphModel _graph;
     private RuleEngine _rule;
     private IGameState _currentState;
+
+    private ZobristHasher _hasher;
+    private GameStateHistory _history;
 
     private IPlayerInputStrategy _rabbitStrategy;
     private IPlayerInputStrategy _wolfStrategy;
@@ -24,11 +28,15 @@ public class TurnController : MonoBehaviour
 
     public void Initialize(
         RuleEngine rule,
+        ZobristHasher hasher,
         IStageRepository stageRepo,
         IPlayerInputStrategy rabbitStrategy,
         IPlayerInputStrategy wolfStrategy)
     {
         _rule = rule;
+        _hasher = hasher;
+        _history = new GameStateHistory();
+
 
         _rabbitStrategy = rabbitStrategy;
         _wolfStrategy = wolfStrategy;
@@ -45,6 +53,7 @@ public class TurnController : MonoBehaviour
         _currentState.OnEnter(this);
     }
 
+    // TODO: 現在の経過ターンを更新する
     public void OnActionCompleted()
     {
         if (CheckVictory(out GameResult result))
@@ -71,7 +80,16 @@ public class TurnController : MonoBehaviour
     public void SetGraph(GraphModel graph)
     {
         _graph = graph;
-        _graphView.Initialize(graph);
+
+        // グラフ確定後に初期ハッシュを計算
+        _graph.CurrentHash = _hasher.ComputeFullHash(_graph, isWolfTurn: false);
+
+        // 初期盤面を履歴に登録
+        _history.TryRegister(_graph.CurrentHash);
+
+        _graphView.Initialize(_graph);
+    }
+
     public void Undo()
     {
         if (!_commandStack.CanUndo) return;
@@ -102,15 +120,16 @@ public class TurnController : MonoBehaviour
 
         if (ct.IsCancellationRequested) return;
 
-        // 今はコマンドに空が入っているため、エラーが起きる
         _commandStack.Execute(command, _graph);
+
         OnActionCompleted();
     }
 
     private bool CheckVictory(out GameResult result)
     {
-        int rabbitPos = _graph.GetPlayerPosition(PlayerType.Rabbit);
-        int wolfPos = _graph.GetPlayerPosition(PlayerType.Wolf);
+        int rabbitPos = _graph.GetPlayerPosition(PlayerID.Rabbit);
+        int wolfAPos = _graph.GetPlayerPosition(PlayerID.WolfA);
+        int wolfBPos = _graph.GetPlayerPosition(PlayerID.WolfB);
 
         // ウサギがゴールに到達
         if (_graph.GetNodeType(rabbitPos) == NodeType.Goal)
@@ -120,13 +139,16 @@ public class TurnController : MonoBehaviour
         }
 
         // オオカミがウサギを捕獲
-        if (rabbitPos == wolfPos)
+        if (rabbitPos == wolfAPos || rabbitPos == wolfBPos)
         {
             result = GameResult.WolfCaught;
             return true;
         }
 
-        // TODO: 千日手は第2週（ZobristHasher実装後）に追加
+        // 千日手の判定
+        if (_history.TryRegister(_graph.CurrentHash))
+        { result = GameResult.RabbitLooped; return true; }
+
         result = GameResult.None;
         return false;
     }

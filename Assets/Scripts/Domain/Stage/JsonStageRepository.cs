@@ -42,7 +42,7 @@ public class JsonStageRepository : IStageRepository
         }
 
         // プレイヤーの初期位置設定
-        graph.InitializePlayerPositions(stage.RabbitStart, stage.WolfStart);
+        graph.InitializePlayerPositions(stage.RabbitStart, stage.WolfAStart, stage.WolfBStart);
         return graph;
     }
 }

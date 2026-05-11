@@ -18,6 +18,7 @@
     [7, 9]
   ],
   "RabbitStart": 1,
-  "WolfStart": 9,
+  "WolfAStart": 9,
+  "WolfBStart": 8,
   "GoalNode": 4
 }

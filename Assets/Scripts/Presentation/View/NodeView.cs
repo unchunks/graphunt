@@ -31,26 +31,27 @@ public class NodeView : MonoBehaviour
             _graph.OnPlayerMoved -= HandlePlayerMoved;
     }
 
-    private void HandlePlayerMoved(PlayerType playerType, int toNodeId)
+    private void HandlePlayerMoved(PlayerID playerId, int toNodeId)
     {
         UpdateColor();
     }
 
     private void UpdateColor()
     {
-        int rabbitNode = _graph.GetPlayerPosition(PlayerType.Rabbit);
-        int wolfNode = _graph.GetPlayerPosition(PlayerType.Wolf);
+        int rabbitNode = _graph.GetPlayerPosition(PlayerID.Rabbit);
+        int wolfANode = _graph.GetPlayerPosition(PlayerID.WolfA);
+        int wolfBNode = _graph.GetPlayerPosition(PlayerID.WolfB);
 
-        if (NodeId == rabbitNode && NodeId == wolfNode)
+        if (NodeId == rabbitNode && (NodeId == wolfANode || NodeId == wolfBNode))
         {
-            // 同じノードにいる（捕獲直前）場合は赤を優先
+            // 同じノードにいる場合（捕獲時）は赤を優先
             _renderer.material.color = ColorWolf;
         }
         else if (NodeId == rabbitNode)
         {
             _renderer.material.color = ColorRabbit;
         }
-        else if (NodeId == wolfNode)
+        else if (NodeId == wolfANode || NodeId == wolfBNode)
         {
             _renderer.material.color = ColorWolf;
         }

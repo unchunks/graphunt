@@ -5,9 +5,9 @@ public class RuleEngine
     #region 公開メソッド
 
     /// <summary>隣接ノードへの移動が可能か。</summary>
-    public bool CanMove(GraphModel g, PlayerType playerType, int targetNode)
+    public bool CanMove(GraphModel g, PlayerID playerId, int targetNode)
     {
-        int current = g.GetPlayerPosition(playerType);
+        int current = g.GetPlayerPosition(playerId);
         return g.HasEdge(current, targetNode);
     }
 
@@ -23,9 +23,9 @@ public class RuleEngine
     }
 
     /// <summary>現在地からターゲットまでが距離2であり接続が可能か。</summary>
-    public bool CanConnect(GraphModel g, PlayerType playerType, int targetNode)
+    public bool CanConnect(GraphModel g, PlayerID playerId, int targetNode)
     {
-        int current = g.GetPlayerPosition(playerType);
+        int current = g.GetPlayerPosition(playerId);
 
         // 既にエッジが存在する場合は生成不可
         if (g.HasEdge(current, targetNode)) return false;

@@ -1,5 +1,5 @@
 ﻿public enum PlayerType
 {
-    Rabbit = 0,
-    Wolf = 1,
+    Rabbit = PlayerID.Rabbit,
+    Wolf = PlayerID.WolfA,
 }

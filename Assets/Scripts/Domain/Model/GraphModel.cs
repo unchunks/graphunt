@@ -8,12 +8,14 @@ public class GraphModel
     private readonly HashSet<EdgeData> _edges = new();
     private readonly Dictionary<int, HashSet<int>> _adjacencyList = new();
 
+    public ulong CurrentHash { get; set; }  // Commandが差分更新する
+
     // TODO: オオカミが2体にできるように仕様を変更する
-    // プレイヤー現在地（0=ウサギ, 1=オオカミ, インデックスは PlayerType にキャスト）
-    private readonly int[] _playerPositions = new int[2];
+    // プレイヤー現在地（0=ウサギ, 1=オオカミA, 2=オオカミB, インデックスは PlayerID にキャスト）
+    private readonly int[] _playerPositions = new int[3];
 
     // イベント
-    public event Action<PlayerType, int> OnPlayerMoved;   // (playerType, toNodeId)
+    public event Action<PlayerID, int> OnPlayerMoved;   // (playerId, toNodeId)
     public event Action<EdgeData> OnEdgeRemoved;
     public event Action<EdgeData> OnEdgeAdded;
     public event Action<NodeData> OnNodeAdded;
@@ -62,21 +64,22 @@ public class GraphModel
     #region プレイヤー操作
 
     /// <summary>ステージ読み込み時の初期位置設定。イベントは発行しない。</summary>
-    public void InitializePlayerPositions(int rabbitNodeId, int wolfNodeId)
+    public void InitializePlayerPositions(int rabbitNodeId, int wolfANodeId, int wolfBNodeId)
     {
-        _playerPositions[(int)PlayerType.Rabbit] = rabbitNodeId;
-        _playerPositions[(int)PlayerType.Wolf] = wolfNodeId;
+        _playerPositions[(int)PlayerID.Rabbit] = rabbitNodeId;
+        _playerPositions[(int)PlayerID.WolfA] = wolfANodeId;
+        _playerPositions[(int)PlayerID.WolfB] = wolfBNodeId;
     }
 
     /// <summary>ターン中の移動。イベントを発行する。</summary>
-    public void MovePlayer(PlayerType playerType, int toNodeId)
+    public void MovePlayer(PlayerID playerId, int toNodeId)
     {
-        _playerPositions[(int)playerType] = toNodeId;
-        OnPlayerMoved?.Invoke(playerType, toNodeId);
+        _playerPositions[(int)playerId] = toNodeId;
+        OnPlayerMoved?.Invoke(playerId, toNodeId);
     }
 
-    public int GetPlayerPosition(PlayerType playerType)
-        => _playerPositions[(int)playerType];
+    public int GetPlayerPosition(PlayerID playerId)
+        => _playerPositions[(int)playerId];
 
     #endregion
 

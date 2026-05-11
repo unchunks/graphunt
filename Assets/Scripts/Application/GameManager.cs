@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         RuleEngine rule = new RuleEngine();
+        ZobristHasher hasher = new ZobristHasher(maxNodes: 30);
 
         string stageFilePath = GetStageFilePath(_selectedStage);
         IStageRepository repo = new JsonStageRepository(stageFilePath);
@@ -27,10 +28,10 @@ public class GameManager : MonoBehaviour
         IPlayerInputStrategy wolfStrategy = null;
 
         // TODO: PVPやPVEなどモードに応じたプレイヤー入力戦略の初期化
-        rabbitStrategy = new HumanInputStrategy(_inputController, rule);
-        wolfStrategy = new HumanInputStrategy(_inputController, rule);
+        rabbitStrategy = new HumanInputStrategy(_inputController, rule, hasher);
+        wolfStrategy = new HumanInputStrategy(_inputController, rule, hasher);
 
-        _turnController.Initialize(rule, repo, rabbitStrategy, wolfStrategy);
+        _turnController.Initialize(rule, hasher, repo, rabbitStrategy, wolfStrategy);
     }
 
     /// <summary>

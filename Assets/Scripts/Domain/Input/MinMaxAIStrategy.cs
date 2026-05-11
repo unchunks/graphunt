@@ -8,6 +8,6 @@ public class MinMaxAIStrategy : IPlayerInputStrategy
         PlayerType playerType,
         CancellationToken cancellationToken)
     {
-        return new UniTask<IGameCommand>(); //DecideActionAsync(graph, playerType, cancellationToken);
+        return new UniTask<IGameCommand>(); //DecideActionAsync(graph, playerId, cancellationToken);
     }
 }
