@@ -5,8 +5,7 @@ public class NodeView : MonoBehaviour
     public int NodeId { get; private set; }
 
     [Header("Emission Settings")]
-    [SerializeField] private float _emissionIntensity = 2.0f; // 発光の強さ（Inspectorで調整可能）
-    [SerializeField] private bool _glowNormalNodes = false;   // 通常ノードも光らせるか
+    [SerializeField] private float _emissionIntensity = 2.0f; // 発光の強さ
 
     private NodeData _node;
     private Renderer _renderer;

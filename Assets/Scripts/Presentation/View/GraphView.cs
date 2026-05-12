@@ -57,8 +57,6 @@ public class GraphView : MonoBehaviour
 
         view.Initialize(node, _graph);
         _nodeViews[node.Id] = view;
-
-        //CalculateAndAnimateLayout();
     }
 
     private void HandleEdgeAdded(EdgeData edge)
@@ -75,8 +73,6 @@ public class GraphView : MonoBehaviour
 
         view.Initialize(edge, viewA, viewB);
         _edgeViews[edge] = view;
-
-        //CalculateAndAnimateLayout();
     }
 
     private void HandleEdgeRemoved(EdgeData edge)
@@ -85,8 +81,6 @@ public class GraphView : MonoBehaviour
 
         _edgeViews.Remove(edge);
         Destroy(view.gameObject);
-
-        //CalculateAndAnimateLayout();
     }
 
     #endregion
@@ -104,8 +98,8 @@ public class GraphView : MonoBehaviour
         var result = FruchtermanReingold.Solve(
             ids: _graph.Nodes.Keys.ToList(),
             edges: edges,
-            radius: 5f,
-            maxIterations: 500
+            radius: 8f,
+            maxIterations: 300
         );
 
         var targets = new Dictionary<int, Vector3>();
