@@ -2,31 +2,62 @@
 
 public class GameStateHistory
 {
-    private readonly HashSet<ulong> _hashes = new();
-    private readonly Stack<ulong> _history = new();  // Undo用に順序を保持
+    // ハッシュごとの出現回数
+    private readonly Dictionary<ulong, int> _counts = new();
+
+    // Undo 用に順序を保持
+    private readonly Stack<ulong> _history = new();
 
     /// <summary>
     /// 現在のハッシュを履歴に追加する。
-    /// 既に存在していれば千日手（true を返す）。
+    /// 同一局面が3回目なら千日手（true を返す）。
     /// </summary>
     public bool TryRegister(ulong hash)
     {
-        // TODO: 3回目の同一局面で千日手とする
-        // Add が false を返す = 既に存在する = 千日手
-        return false; // !_hashes.Add(hash);
+        // 履歴に積む（Undoのため必須）
+        _history.Push(hash);
+
+        if (_counts.TryGetValue(hash, out int count))
+        {
+            count++;
+            _counts[hash] = count;
+
+            // 3回目で千日手
+            return count >= 3;
+        }
+        else
+        {
+            _counts[hash] = 1;
+            return false;
+        }
     }
 
-    /// <summary>Undo時に直前の盤面状態を履歴から取り除く</summary>
+    /// <summary>
+    /// Undo時に直前の盤面状態を履歴から取り除く
+    /// </summary>
     public void PopLast()
     {
         if (_history.Count == 0) return;
+
         ulong last = _history.Pop();
-        _hashes.Remove(last);
+
+        if (_counts.TryGetValue(last, out int count))
+        {
+            count--;
+
+            if (count <= 0)
+                _counts.Remove(last);
+            else
+                _counts[last] = count;
+        }
     }
 
+    /// <summary>
+    /// 履歴を完全にクリア
+    /// </summary>
     public void Clear()
     {
-        _hashes.Clear();
+        _counts.Clear();
         _history.Clear();
     }
 }
