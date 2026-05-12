@@ -125,5 +125,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f065eae150bb0c04f879ad2a56591aee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NodeView
-  _emissionIntensity: 2
-  _glowNormalNodes: 1
+  _emissionIntensity: 3
