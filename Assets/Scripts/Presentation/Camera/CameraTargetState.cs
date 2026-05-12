@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// カメラが「最終的にどうなりたいか」を保持するクラス
-/// 入力や補間とは無関係な、純粋な目標値のみを管理する
+/// カメラが「最終的にどうなりたいか」を保持するクラス。
+/// 入力や補間とは無関係な、純粋な目標値のみを管理する。
 /// </summary>
 public class CameraTargetState
 {
@@ -15,6 +15,9 @@ public class CameraTargetState
     // Y軸回転量（Yaw）
     public float Yaw;
 
+    // X軸回転量（Pitch）
+    public float Pitch;
+
     // 目標回転
     public Quaternion Rotation;
 
@@ -25,15 +28,21 @@ public class CameraTargetState
     {
         Position = t.position;
         Zoom = t.position.y;
-        Yaw = t.eulerAngles.y;
+
+        // 現在の角度を取得し、Pitchを -180 ~ 180 の範囲で初期化
+        Vector3 euler = t.eulerAngles;
+        Pitch = euler.x > 180 ? euler.x - 360 : euler.x;
+        Yaw = euler.y;
+
         Rotation = t.rotation;
     }
 
     /// <summary>
-    /// Yawをもとに、現在のX/Z角度を維持した回転を生成
+    /// 現在のPitchとYawからRotationを更新
     /// </summary>
-    public void UpdateRotation(float xAngle, float zAngle)
+    public void UpdateRotation()
     {
-        Rotation = Quaternion.Euler(xAngle, Yaw, zAngle);
+        // Z軸は0で固定
+        Rotation = Quaternion.Euler(Pitch, Yaw, 0f);
     }
 }

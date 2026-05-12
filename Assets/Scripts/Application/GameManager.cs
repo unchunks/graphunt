@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
     {
         Stage_01,
         Stage_02,
-        //Stage_03
+        Stage_03
     }
 
     [SerializeField] private TurnController _turnController;

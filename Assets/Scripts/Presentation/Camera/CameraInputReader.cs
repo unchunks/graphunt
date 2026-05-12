@@ -10,11 +10,14 @@ public class CameraInputReader
     // パン入力（x:左右, y:前後）
     public Vector2 PanInput;
 
+    // マウスドラッグによるパン入力
+    public Vector2 DragPanInput;
+
     // ズーム入力（マウスホイール）
     public float ZoomInput;
 
     // 回転入力
-    public float RotateInput;
+    public Vector2 RotateInput;
 
     /// <summary>
     /// 現在フレームの入力を取得する
@@ -22,33 +25,27 @@ public class CameraInputReader
     public void Read(bool useEdge, float edgeWidth)
     {
         PanInput = Vector2.zero;
+        DragPanInput = Vector2.zero;
         ZoomInput = 0f;
-        RotateInput = 0f;
+        RotateInput = Vector2.zero;
 
-        var kb = Keyboard.current;
         var mouse = Mouse.current;
 
-        // キーボードパン
-        if (kb != null)
-        {
-            if (kb.wKey.isPressed || kb.upArrowKey.isPressed) PanInput.y += 1;
-            if (kb.sKey.isPressed || kb.downArrowKey.isPressed) PanInput.y -= 1;
-            if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) PanInput.x += 1;
-            if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) PanInput.x -= 1;
-
-            if (kb.qKey.isPressed) RotateInput += 1;
-            if (kb.eKey.isPressed) RotateInput -= 1;
-        }
-
-        // マウスホイールズーム
+        // マウス入力
         if (mouse != null)
         {
             ZoomInput = mouse.scroll.ReadValue().y;
 
-            // マウスドラッグ回転
+            // 右ドラッグで上下左右の回転を取得
+            if (mouse.rightButton.isPressed)
+            {
+                // x: 左右(Yaw), y: 上下(Pitch)
+                RotateInput = mouse.delta.ReadValue() * 0.1f;
+            }
+
             if (mouse.middleButton.isPressed)
             {
-                RotateInput = mouse.delta.ReadValue().x * 0.1f;
+                DragPanInput = new Vector2(-mouse.delta.ReadValue().x, -mouse.delta.ReadValue().y);
             }
         }
 

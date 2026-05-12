@@ -13,7 +13,7 @@ public class GameStateHistory
     {
         // TODO: 3回目の同一局面で千日手とする
         // Add が false を返す = 既に存在する = 千日手
-        return !_hashes.Add(hash);
+        return false; // !_hashes.Add(hash);
     }
 
     /// <summary>Undo時に直前の盤面状態を履歴から取り除く</summary>

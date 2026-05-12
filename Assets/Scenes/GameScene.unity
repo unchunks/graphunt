@@ -438,7 +438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _turnController: {fileID: 628382301}
   _inputController: {fileID: 1463707831}
-  _selectedStage: 1
+  _selectedStage: 2
 --- !u!1 &184294511
 GameObject:
   m_ObjectHideFlags: 0
@@ -758,12 +758,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dd8ac7946c1d0548a52377645926f4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  _panSpeed: 20
-  _panSmooth: 0.15
-  _zoomSpeed: 500
-  _zoomSmooth: 0.1
+  _panSpeed: 100
   _rotSpeed: 100
-  _rotSmooth: 0.1
+  _zoomSpeed: 100
   _useEdge: 0
   _edgeWidth: 10
   _useBounds: 0

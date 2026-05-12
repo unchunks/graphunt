@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GraphView : MonoBehaviour
@@ -100,14 +102,15 @@ public class GraphView : MonoBehaviour
             edges.Add((e.NodeA, e.NodeB));
 
         var result = FruchtermanReingold.Solve(
-            ids,
-            edges,
-            new Rect(0, 0, 10, 10)
+            ids: _graph.Nodes.Keys.ToList(),
+            edges: edges,
+            radius: 5f,
+            maxIterations: 500
         );
 
         var targets = new Dictionary<int, Vector3>();
         foreach (var kv in result)
-            targets[kv.Key] = new Vector3(kv.Value.x, 0f, kv.Value.y);
+            targets[kv.Key] = kv.Value;
 
         _animator.Initialize(_nodeViews, UpdateEdges);
         _animator.Play(targets);
